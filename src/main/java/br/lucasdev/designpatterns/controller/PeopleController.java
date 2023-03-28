@@ -19,7 +19,7 @@ public class PeopleController {
     }
 
     @GetMapping("/peoples/{id}")
-    public Optional<People> getPeoples(@PathVariable("id") Long id) {
+    public People getPeoples(@PathVariable("id") Long id) {
         return service.getPeople(id);
     }
 

@@ -1,11 +1,13 @@
 package br.lucasdev.designpatterns.service;
 
 import br.lucasdev.designpatterns.client.ViaCepClient;
+import br.lucasdev.designpatterns.exceptions.people.PeopleNotFoundException;
 import br.lucasdev.designpatterns.model.Address;
 import br.lucasdev.designpatterns.model.People;
 import br.lucasdev.designpatterns.repository.AddressRepository;
 import br.lucasdev.designpatterns.repository.PeopleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +28,11 @@ public class PeopleService {
         return peopleRepository.findAll();
     }
 
-    public Optional<People> getPeople(Long id) {
-        return peopleRepository.findById(id);
+    public People getPeople(Long id) throws PeopleNotFoundException {
+        People people = peopleRepository.findById(id)
+                .orElseThrow(() -> new PeopleNotFoundException(id));
+
+        return people;
     }
 
     public People createPeople(People people) {
@@ -47,9 +52,13 @@ public class PeopleService {
         return this.createPeople(people);
     }
 
-    public Long deletePeople(Long id) {
-        peopleRepository.deleteById(id);
-        return id;
+    public Long deletePeople(Long id) throws PeopleNotFoundException {
+        try {
+            peopleRepository.deleteById(id);
+            return id;
+        } catch (EmptyResultDataAccessException e) {
+            throw new PeopleNotFoundException(id);
+        }
     }
 
 }
